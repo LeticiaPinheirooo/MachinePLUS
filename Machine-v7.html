@@ -186,7 +186,7 @@
     }
 
     function converter() {
-      var entrada = document.getElementById("entradaConversor").value.trim();
+      var entrada = document.getElementById("entradaConversor");
       var base = parseInt(document.getElementById("baseConversor").value);
       var resultadoDiv = document.getElementById("resultado");
       var passosDiv = document.getElementById("passos");
@@ -209,11 +209,11 @@
       }
 
       var decimal = parseInt(entrada, base);
-      resultadoDiv.innerHTML =
+      resultadoDiv.innerHTML = //convertendo os val p texto tb
         "<b>Decimal:</b> " + decimal + "<br>" +
         "Binário: " + decimal.toString(2) + "<br>" +
         "Octal: " + decimal.toString(8) + "<br>" +
-        "Hexadecimal: " + decimal.toString(16).toUpperCase();
+        "Hexadecimal: " + decimal.toString(16).toUpperCase(); //fica tudo maiusculo na hr de exibir
 
       // Passo a passo binário
       var n = decimal;
@@ -226,7 +226,7 @@
 
       // Histórico
       contadorConversor++;
-      historicoDiv.innerHTML += "<div>[#" + contadorConversor + "] " + entrada + " (base " + base + ")</div>";
+      historicoDiv.innerHTML += "<div>[#" +contadorConversor + "] " + entrada + " (base " +base+ ")</div>";
     }
 
 
@@ -258,7 +258,7 @@
       var num2 = parseInt(n2, base);
       var resultadoDecimal = 0;
 
-      //
+      // anotação: "===" comparação estrita. Ele verifica se os valores são iguais E se os tipos de dados são idênticos
       if (operador === "+"){ 
       resultadoDecimal = num1 + num2;
 
@@ -284,3 +284,4 @@
       historicoDiv.innerHTML += "<div>[#" + contadorOperacoes + "] " + n1 + " " + operador + " " + n2 + " (base " + base + ")</div>";
     }
   </script>
+

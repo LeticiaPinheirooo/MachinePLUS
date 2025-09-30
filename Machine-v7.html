@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPTecher's Machine | LeticiaPinheiro</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #4e3a85;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #e8efef;
+      padding: 20px;
+      border-radius: 20px;
+      width: 600px;
+      position: relative;
+    }
+
+    /*titulos*/
+    h1, h2, h3 { text-align: center; }
+    input, select, button {
+      margin: 5px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .subtitulo { 
+      text-align: center; 
+      margin: 5px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    
+    button { 
+      cursor: pointer;
+      background: #d93161;
+      color: #fff;
+      font-weight: bolder;
+    }
+    .btn-op:hover {
+      background: #b2264d;
+    }
+    #resultado, #resultadoOperacoes, #passos, #historicoConversor, #historicoOperacoes {
+      margin-top: 15px;
+      padding: 10px;
+      border: 1px solid #d93161;
+      border-radius: 10px;
+      background: #fff;
+    }
+    #historicoConversor, #historicoOperacoes {
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    /* Botão redondo fixo */
+    .btn-trocaTela {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: #d93161;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!--coisa p mudar de tela-->
+    <button class="btn-trocaTela" onclick="alternar()">⇆</button>
+
+    <!-- Conversor tela inicial-->
+    <div id="div_conversor" style="display: block;">
+        <h1>Machine PLUS</h1>
+        <h3 class="subtitulo">Conversor</h3>
+
+        <input id="entradaConversor" placeholder="Digite um número...">
+        <select id="baseConversor">
+          <option value="2">Binário</option>
+          <option value="8">Octal</option>
+          <option value="10" selected>Decimal</option>
+          <option value="16">Hexadecimal</option>
+        </select>
+
+        <!--chamada do botão primeira tela-->
+        <button onclick="converter()">Converter</button>
+
+        <!--aparece result-->
+        <div id="resultado"></div>
+        <div id="passos"></div>
+        
+        <h3>Histórico:</h3>
+        <div id="historicoConversor"></div>
+    </div>
+
+    <!-- Calculadora -> aparece so se clicar no botao rosa -->
+    <div id="div_operacoes" style="display: none;">
+      <h1>Machine PLUS</h1>
+      <h3 class="subtitulo">Calculadora</h3>
+
+      <input id="num1" placeholder="Primeiro número">
+      <input id="num2" placeholder="Segundo número">
+
+      <select id="baseOperacoes">
+        <option value="2">Binário</option>
+        <option value="8">Octal</option>
+        <option value="10" selected>Decimal</option>
+        <option value="16">Hexadecimal</option>
+      </select>
+
+      <div>
+        <!--A função calcular é chamada com o operador já definido como argumento.-->
+        <button class="btn-op" onclick="calcular('+')">+</button>
+        <button class="btn-op" onclick="calcular('-')">-</button>
+        <button class="btn-op" onclick="calcular('*')">*</button>
+        <button class="btn-op" onclick="calcular('/')">/</button>
+      </div>
+
+      <!--aparece result-->
+      <div id="resultadoOperacoes"></div>
+
+      <h3>Histórico:</h3>
+      <!--aparece o historico e vai adicionando-->
+      <div id="historicoOperacoes"></div>
+    </div>
+
+    <!--Creditos eu-->
+    <div class="creditos" style="color:#b2264d; justify-content: center; align-items: center; display: flex;">
+        <h5>Criado por Leticia Pinheiro 🤠</h5>
+    </div>
+
+  </div>
+</body>
+</html>
+
+<script>
+    var contadorConversor = 0;
+    var contadorOperacoes = 0;
+
+    entradaConversor.focus();
+    num1.focus(); //como coloca focus nesse mds
+
+    function alternar() {
+      var conversor = document.getElementById("div_conversor");
+      var operacoes = document.getElementById("div_operacoes");
+
+      //alternando telas
+      if (conversor.style.display === "block") {
+        conversor.style.display = "none";
+        operacoes.style.display = "block";
+      } else {
+        conversor.style.display = "block";
+        operacoes.style.display = "none";
+      }
+    }
+
+    //funcao com parametro numero/ e sua base
+    function validarEntrada(num, base) {
+      var digitos = {
+        2: "01",
+        8: "01234567",
+        10: "0123456789",
+        16: "0123456789ABCDEFabcdef"
+      };
+
+      //laco de repeticao
+      for (var i = 0; i < num.length; i++) {
+        if (!digitos[base].includes(num[i])) {
+          return "Número inválido para base " + base;
+        }
+      }
+      return "";
+    }
+
+    function converter() {
+      var entrada = document.getElementById("entradaConversor").value.trim();
+      var base = parseInt(document.getElementById("baseConversor").value);
+      var resultadoDiv = document.getElementById("resultado");
+      var passosDiv = document.getElementById("passos");
+      var historicoDiv = document.getElementById("historicoConversor");
+
+      //revebem valor dps
+      resultadoDiv.innerHTML = "";
+      passosDiv.innerHTML = "";
+
+      //se estiver o campo vazio
+      if (entrada === "") {
+        resultadoDiv.innerHTML = "<b style='color:red;'>Digite algo válido!</b>";
+        return;
+      }
+
+      var erro = validarEntrada(entrada, base);
+      if (erro !== "") {
+        resultadoDiv.innerHTML = "<b style='color:red;'>" + erro + "</b>";
+        return;
+      }
+
+      var decimal = parseInt(entrada, base);
+      resultadoDiv.innerHTML =
+        "<b>Decimal:</b> " + decimal + "<br>" +
+        "Binário: " + decimal.toString(2) + "<br>" +
+        "Octal: " + decimal.toString(8) + "<br>" +
+        "Hexadecimal: " + decimal.toString(16).toUpperCase();
+
+      // Passo a passo binário
+      var n = decimal;
+      var textoPassos = "<b>Conversão para Binário:</b><br>";
+      while (n > 0) {
+        textoPassos += n + " ÷ 2 = " + Math.floor(n/2) + " - resto " + (n%2) + "<br>";
+        n = Math.floor(n/2);
+      }
+      passosDiv.innerHTML = textoPassos;
+
+      // Histórico
+      contadorConversor++;
+      historicoDiv.innerHTML += "<div>[#" + contadorConversor + "] " + entrada + " (base " + base + ")</div>";
+    }
+
+
+    //funcao para a parte de calculadora-------------
+    function calcular(operador) {
+      var n1 = document.getElementById("num1").value.trim();
+      var n2 = document.getElementById("num2").value.trim();
+      var base = parseInt(document.getElementById("baseOperacoes").value);
+      var resultadoDiv = document.getElementById("resultadoOperacoes");
+      var historicoDiv = document.getElementById("historicoOperacoes");
+
+      //recebe valor dps
+      resultadoDiv.innerHTML = "";
+
+      //erro dnv se estiver vazio o campo
+      if (n1 === "" || n2 === "") {
+        resultadoDiv.innerHTML = "<b style='color:red;'>Preencha os dois números</b>";
+        return;
+      }
+
+      var erro1 = validarEntrada(n1, base);
+      var erro2 = validarEntrada(n2, base);
+      if (erro1 !== "" || erro2 !== "") {
+        resultadoDiv.innerHTML = "<b style='color:red;'>" + (erro1 || erro2) + "</b>";
+        return;
+      }
+
+      var num1 = parseInt(n1, base);
+      var num2 = parseInt(n2, base);
+      var resultadoDecimal = 0;
+
+      //
+      if (operador === "+"){ 
+      resultadoDecimal = num1 + num2;
+
+      }else if (operador === "-"){ 
+        resultadoDecimal = num1 - num2;
+
+      }else if (operador === "*"){
+         resultadoDecimal = num1 * num2;
+
+      }else if (operador === "/") {
+        resultadoDecimal = Math.floor(num1 / num2);
+      }
+
+      resultadoDiv.innerHTML =
+        "<b>Operação:</b> " + n1 + " " + operador + " " + n2 + " (base " + base + ")<br>" +
+        "<b>Resultado:</b> " + resultadoDecimal + " (decimal)<br>" +
+        "Binário: " + resultadoDecimal.toString(2) + "<br>" +
+        "Octal: " + resultadoDecimal.toString(8) + "<br>" +
+        "Hexadecimal: " + resultadoDecimal.toString(16).toUpperCase();
+
+      // Histórico
+      contadorOperacoes++;
+      historicoDiv.innerHTML += "<div>[#" + contadorOperacoes + "] " + n1 + " " + operador + " " + n2 + " (base " + base + ")</div>";
+    }
+  </script>
